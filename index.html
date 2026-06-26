@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#7c2d12">
+<meta name="color-scheme" content="dark light">
+<title>Barcelona Eats · Jason · Sanja · Maya</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html{background:#1a1412;color-scheme:dark light;}
+  html,body{margin:0;padding:0;background:#1a1412;color:#f4ebe2;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%;}
+  body{padding-bottom:env(safe-area-inset-bottom);}
+
+  header{position:sticky;top:0;z-index:50;background:linear-gradient(180deg,#2b1a12 0%,#23150f 100%);
+    border-bottom:1px solid #3a2c23;padding:14px 16px 10px;padding-top:calc(14px + env(safe-area-inset-top));}
+  .title-row{display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
+  h1{font-size:1.18rem;margin:0;letter-spacing:.3px;font-weight:700;}
+  h1 .em{color:#e8893b;}
+  .who{font-size:.72rem;color:#9a8674;white-space:nowrap;letter-spacing:.4px;text-transform:uppercase;}
+  .search-wrap{position:relative;margin-top:11px;}
+  #search{width:100%;padding:11px 38px;border-radius:11px;border:1px solid #3a2c23;
+    background:#241c18;color:#f4ebe2;font-size:16px;outline:none;}
+  #search::placeholder{color:#9a8674;}
+  #search:focus{border-color:#e8893b;}
+  .search-ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.55;font-size:.95rem;}
+  .search-clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:#3a2a20;
+    border:none;color:#cbb9a8;width:24px;height:24px;border-radius:50%;font-size:.85rem;display:none;cursor:pointer;line-height:1;}
+  .search-clear.show{display:block;}
+
+  /* radio tabs: hide the inputs */
+  .tabradio{position:absolute;opacity:0;pointer-events:none;width:0;height:0;}
+  nav{position:sticky;top:0;z-index:40;background:#1a1412;border-bottom:1px solid #3a2c23;
+    display:flex;gap:6px;overflow-x:auto;padding:9px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  nav::-webkit-scrollbar{display:none;}
+  .tab{flex:0 0 auto;padding:8px 14px;border-radius:999px;background:#241c18;color:#cbb9a8;
+    font-size:.86rem;font-weight:600;white-space:nowrap;border:1px solid transparent;cursor:pointer;
+    transition:background .12s,color .12s;display:inline-block;}
+
+  main{padding:14px 14px 60px;max-width:760px;margin:0 auto;}
+  .nbhd{display:none;}
+  .nbhd-head{margin:2px 0 4px;}
+  .nbhd-head h2{font-size:1.32rem;margin:0 0 2px;font-weight:700;letter-spacing:.2px;}
+  .nbhd-head h2 .accent{color:#e8893b;}
+  .nbhd-blurb{font-size:.86rem;color:#9a8674;margin:0 0 6px;}
+
+  .cat{margin-top:16px;border:0;}
+  .cat-h{display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none;list-style:none;
+    padding:9px 12px;background:#241c18;border:1px solid #3a2c23;border-radius:11px;}
+  .cat-h::-webkit-details-marker{display:none;}
+  .cat-h h3{font-size:.97rem;margin:0;font-weight:700;color:#e6b450;letter-spacing:.2px;}
+  .cat-h .pin{font-size:.95rem;}
+  .cat-count{font-size:.7rem;color:#9a8674;background:#3a2a20;padding:2px 7px;border-radius:999px;font-weight:600;margin-left:auto;}
+  .cat-h::after{content:"▾";color:#9a8674;font-size:.8rem;margin-left:8px;transition:transform .15s;}
+  .cat[open] .cat-h::after{transform:rotate(180deg);}
+
+  .cards{margin-top:9px;display:flex;flex-direction:column;gap:9px;}
+  .card{background:#241c18;border:1px solid #3a2c23;border-radius:14px;padding:12px 13px;}
+  .card-top{display:flex;align-items:flex-start;gap:8px;}
+  .card-name{font-size:1.02rem;font-weight:700;margin:0;line-height:1.25;}
+  .stars{color:#e6b450;font-size:.8rem;letter-spacing:1px;margin-left:1px;}
+  .tags{display:flex;flex-wrap:wrap;gap:5px;margin:7px 0 0;}
+  .tag{font-size:.68rem;font-weight:600;letter-spacing:.3px;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:#3a2a20;color:#e8893b;}
+  .tag.warn{color:#f0a868;}
+  .tag.book{color:#e6b450;}
+  .tag.cash{color:#e88b8b;}
+  .tag.price{color:#231009;background:#e6b450;}
+
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0;}
+  .chip{font-size:.74rem;color:#e8893b;background:#3a2a20;border:1px solid #3a2c23;
+    padding:4px 9px;border-radius:999px;text-decoration:none;display:inline-flex;align-items:center;gap:3px;white-space:nowrap;}
+  .chip:active{background:#46342a;}
+
+  .desc{font-size:.88rem;color:#cbb9a8;margin:8px 0 0;line-height:1.5;}
+  .card-bullets{margin:8px 0 0;padding-left:18px;color:#cbb9a8;font-size:.86rem;line-height:1.5;}
+  .card-bullets li{margin:3px 0;}
+  .card-bullets b{color:#f4ebe2;}
+
+  .collapse-bar{display:flex;justify-content:flex-end;margin:6px 2px 0;}
+  .collapse-toggle{background:#241c18;border:1px solid #3a2c23;color:#cbb9a8;
+    font-size:.76rem;font-weight:600;padding:5px 11px;border-radius:999px;cursor:pointer;}
+  .collapse-toggle:active{background:#3a2a20;}
+  body.searching .collapse-bar{display:none;}
+
+  .result-nbhd{font-size:.68rem;color:#e8893b;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+
+  /* CSS-driven tab visibility */
+  #tab-food:checked ~ main #nb-food{display:block;}
+#tab-gothic:checked ~ main #nb-gothic{display:block;}
+#tab-born:checked ~ main #nb-born{display:block;}
+#tab-barceloneta:checked ~ main #nb-barceloneta{display:block;}
+#tab-eixample:checked ~ main #nb-eixample{display:block;}
+#tab-gracia:checked ~ main #nb-gracia{display:block;}
+#tab-raval:checked ~ main #nb-raval{display:block;}
+  #tab-food:checked ~ nav label[for="tab-food"]{background:#e8893b;color:#231009;border-color:#e8893b;}
+#tab-gothic:checked ~ nav label[for="tab-gothic"]{background:#e8893b;color:#231009;border-color:#e8893b;}
+#tab-born:checked ~ nav label[for="tab-born"]{background:#e8893b;color:#231009;border-color:#e8893b;}
+#tab-barceloneta:checked ~ nav label[for="tab-barceloneta"]{background:#e8893b;color:#231009;border-color:#e8893b;}
+#tab-eixample:checked ~ nav label[for="tab-eixample"]{background:#e8893b;color:#231009;border-color:#e8893b;}
+#tab-gracia:checked ~ nav label[for="tab-gracia"]{background:#e8893b;color:#231009;border-color:#e8893b;}
+#tab-raval:checked ~ nav label[for="tab-raval"]{background:#e8893b;color:#231009;border-color:#e8893b;}
+
+  /* ---- search mode (JS adds .searching to body) ---- */
+  body.searching nav,body.searching .nbhd-head{display:none;}
+  body.searching .nbhd{display:block !important;}
+  body.searching .cat[data-empty="1"]{display:none;}
+  body.searching .card.nomatch{display:none;}
+  body.searching .cat{margin-top:10px;}
+  #resultsInfo{display:none;font-size:.78rem;color:#9a8674;margin:2px 4px 10px;}
+  body.searching #resultsInfo{display:block;}
+  #noResults{display:none;text-align:center;color:#9a8674;padding:40px 20px;font-size:.9rem;}
+
+  footer{text-align:center;font-size:.7rem;color:#9a8674;padding:20px 16px 30px;border-top:1px solid #3a2c23;margin-top:20px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title-row">
+    <h1>Barcelona <span class="em">Eats</span></h1>
+    <span class="who">Jul 5–10 · J·S·M</span>
+  </div>
+  <div class="search-wrap">
+    <span class="search-ico">🔍</span>
+    <input id="search" type="search" placeholder="Search restaurants, dishes, tags…" autocomplete="off" autocorrect="off" autocapitalize="off">
+    <button class="search-clear" id="clearBtn" aria-label="Clear">✕</button>
+  </div>
+</header>
+
+<input type="radio" name="nbtab" id="tab-food" class="tabradio" checked>
+<input type="radio" name="nbtab" id="tab-gothic" class="tabradio" >
+<input type="radio" name="nbtab" id="tab-born" class="tabradio" >
+<input type="radio" name="nbtab" id="tab-barceloneta" class="tabradio" >
+<input type="radio" name="nbtab" id="tab-eixample" class="tabradio" >
+<input type="radio" name="nbtab" id="tab-gracia" class="tabradio" >
+<input type="radio" name="nbtab" id="tab-raval" class="tabradio" >
+
+
+<nav id="tabsnav">
+<label for="tab-food" class="tab">📖 Food Guide</label>
+<label for="tab-gothic" class="tab">🏰 Gothic Qtr</label>
+<label for="tab-born" class="tab">⭐ El Born</label>
+<label for="tab-barceloneta" class="tab">🏖️ Barceloneta</label>
+<label for="tab-eixample" class="tab">📐 Eixample</label>
+<label for="tab-gracia" class="tab">🌿 Gràcia</label>
+<label for="tab-raval" class="tab">🎨 El Raval</label>
+
+</nav>
+
+<main>
+  <div id="resultsInfo"></div>
+  <div id="noResults">No matches. Try a dish, a name, or a tag like “vermouth” or “book ahead”.</div>
+  <section class="nbhd" id="nb-food">
+<div class="nbhd-head"><h2><span class="accent">📖</span> Food Guide</h2><p class="nbhd-blurb">The lay of the land — what to eat and the dishes worth seeking out.</p></div>
+<div class="collapse-bar"><button class="collapse-toggle" data-state="expanded">▾ Collapse all</button></div>
+<details class="cat" open>
+<summary class="cat-h"><span class="pin">🍢</span><h3>Tapas &amp; pintxos bars</h3><span class="cat-count">1</span></summary>
+<div class="cards">
+<div class="card" data-hay="the basics  &#x27;tapas&#x27; is more an andalusian/madrid concept than a deeply catalan one, though barcelona has fully embraced it. you&#x27;ll find two flavors:  ">
+<div class="card-top"><h4 class="card-name">The basics</h4></div>
+
+
+<div class="desc">&quot;Tapas&quot; is more an Andalusian/Madrid concept than a deeply Catalan one, though Barcelona has fully embraced it. You&#x27;ll find two flavors:</div>
+<ul class="card-bullets"><li><b>Traditional tapas bars</b> — small plates ordered from a menu or pointed at behind the counter.</li><li><b>Basque pintxos bars</b> — a Barcelona staple despite being Basque. Bites skewered on bread sit on the bar; you grab what you want and they count your toothpicks at the end. Great for grazing.</li></ul>
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🥘</span><h3>Catalan home cooking</h3><span class="cat-count">1</span></summary>
+<div class="cards">
+<div class="card" data-hay="cuina catalana — what to look for  the regional heart and what distinguishes barcelona from the rest of spain. look for restaurants serving:  ">
+<div class="card-top"><h4 class="card-name">Cuina catalana — what to look for</h4></div>
+
+
+<div class="desc">The regional heart and what distinguishes Barcelona from the rest of Spain. Look for restaurants serving:</div>
+<ul class="card-bullets"><li><i>Pa amb tomàquet</i> — bread rubbed with tomato, garlic, olive oil. On every table.</li><li><i>Escalivada</i> — smoky roasted eggplant, peppers, onions.</li><li><i>Esqueixada</i> — salt cod salad.</li><li><i>Botifarra amb mongetes</i> — Catalan sausage with white beans.</li><li><i>Fricandó</i> — veal and wild mushroom stew.</li><li><i>Calçots</i> (winter/spring only) — charred spring onions with romesco sauce, eaten at a <i>calçotada</i>. Seasonal, but iconic.</li><li><i>Suquet de peix</i> — fisherman's stew.</li><li><i>Mar i muntanya</i> ("sea and mountain") — the Catalan habit of combining seafood with meat, e.g. chicken with prawns.</li></ul>
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🍚</span><h3>Rice dishes (more than just paella)</h3><span class="cat-count">1</span></summary>
+<div class="cards">
+<div class="card" data-hay="catalonia&#x27;s own rice tradition  paella is valencian, but catalonia has its own rice tradition:  ">
+<div class="card-top"><h4 class="card-name">Catalonia&#x27;s own rice tradition</h4></div>
+
+
+<div class="desc">Paella is Valencian, but Catalonia has its own rice tradition:</div>
+<ul class="card-bullets"><li><i>Arròs negre</i> — black rice with squid ink.</li><li><i>Fideuà</i> — like paella but made with short noodles instead of rice, often with aioli.</li><li><i>Arròs a banda</i>, <i>arròs caldós</i> (soupy rice) — other regional variants.</li><li>A good rice specialist (<i>arrocería</i>) is worth seeking out over a generic paella tourist trap on La Rambla.</li></ul>
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🦐</span><h3>Seafood / marisquerías</h3><span class="cat-count">1</span></summary>
+<div class="cards">
+<div class="card" data-hay="mostly barceloneta  barceloneta (the old fishing neighborhood) is the classic spot. grilled prawns, razor clams, &lt;i&gt;gambas&lt;/i&gt;, &lt;i&gt;percebes&lt;/i&gt; (gooseneck barnacles), and the rice/stew dishes above. quality varies wildly by the water, so this is a &#x27;do your homework&#x27; category.  ">
+<div class="card-top"><h4 class="card-name">Mostly Barceloneta</h4></div>
+
+
+<div class="desc">Barceloneta (the old fishing neighborhood) is the classic spot. Grilled prawns, razor clams, &lt;i&gt;gambas&lt;/i&gt;, &lt;i&gt;percebes&lt;/i&gt; (gooseneck barnacles), and the rice/stew dishes above. Quality varies wildly by the water, so this is a &quot;do your homework&quot; category.</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🍷</span><h3>Vermouth &amp; the aperitiu tradition</h3><span class="cat-count">1</span></summary>
+<div class="cards">
+<div class="card" data-hay="fer el vermut  &lt;i&gt;&#x27;fer el vermut&#x27;&lt;/i&gt; — going for vermouth before lunch on weekends is a genuine barcelona ritual. &lt;i&gt;bodegas&lt;/i&gt; and &lt;i&gt;vermuterías&lt;/i&gt; serve house vermouth on tap with olives, anchovies (&lt;i&gt;boquerones&lt;/i&gt;), chips, and conserves (high-quality tinned seafood, which spaniards take seriously).  ">
+<div class="card-top"><h4 class="card-name">Fer el vermut</h4></div>
+
+
+<div class="desc">&lt;i&gt;&quot;Fer el vermut&quot;&lt;/i&gt; — going for vermouth before lunch on weekends is a genuine Barcelona ritual. &lt;i&gt;Bodegas&lt;/i&gt; and &lt;i&gt;vermuterías&lt;/i&gt; serve house vermouth on tap with olives, anchovies (&lt;i&gt;boquerones&lt;/i&gt;), chips, and conserves (high-quality tinned seafood, which Spaniards take seriously).</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">✨</span><h3>Modernist / avant-garde dining</h3><span class="cat-count">1</span></summary>
+<div class="cards">
+<div class="card" data-hay="the tasting-menu tier  catalonia is the birthplace of modernist gastronomy (el bulli, the adrià brothers, the roca brothers nearby in girona). barcelona has a deep bench of creative tasting-menu restaurants ranging from accessible to multi-michelin. worth one splurge if that&#x27;s your speed — you did the two-star kaiseki in kyoto, so i suspect it is.  ">
+<div class="card-top"><h4 class="card-name">The tasting-menu tier</h4></div>
+
+
+<div class="desc">Catalonia is the birthplace of modernist gastronomy (El Bulli, the Adrià brothers, the Roca brothers nearby in Girona). Barcelona has a deep bench of creative tasting-menu restaurants ranging from accessible to multi-Michelin. Worth one splurge if that&#x27;s your speed — you did the two-star kaiseki in Kyoto, so I suspect it is.</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🍫</span><h3>Sweets &amp; cafés</h3><span class="cat-count">1</span></summary>
+<div class="cards">
+<div class="card" data-hay="the sweet side    ">
+<div class="card-top"><h4 class="card-name">The sweet side</h4></div>
+
+
+
+<ul class="card-bullets"><li><i>Crema catalana</i> — the local crème brûlée cousin, citrus/cinnamon scented.</li><li><i>Xurros amb xocolata</i> — churros with thick drinking chocolate, a <i>granja</i> (milk-bar) tradition.</li><li><i>Coca</i> — a flatbread/pastry, sweet or savory depending on version.</li></ul>
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🏛️</span><h3>Markets</h3><span class="cat-count">1</span></summary>
+<div class="cards">
+<div class="card" data-hay="where to graze  la boqueria is the famous one (and touristy); mercat de santa caterina and mercat de la llibertat are more local. many have counter stalls where you eat on the spot.  ">
+<div class="card-top"><h4 class="card-name">Where to graze</h4></div>
+
+
+<div class="desc">La Boqueria is the famous one (and touristy); Mercat de Santa Caterina and Mercat de la Llibertat are more local. Many have counter stalls where you eat on the spot.</div>
+
+</div>
+</div>
+</details>
+</section><section class="nbhd" id="nb-gothic">
+<div class="nbhd-head"><h2><span class="accent">🏰</span> Gothic Qtr</h2><p class="nbhd-blurb">Ciutat Vella — the medieval core. Deep tapas bench, the granja chocolate street, La Boqueria on your doorstep.</p></div>
+<div class="collapse-bar"><button class="collapse-toggle" data-state="expanded">▾ Collapse all</button></div>
+<details class="cat" open>
+<summary class="cat-h"><span class="pin">🍢</span><h3>Tapas &amp; pintxos bars</h3><span class="cat-count">4</span></summary>
+<div class="cards">
+<div class="card" data-hay="bar la plata carrer de la mercè, 28 a 1945 institution — four dishes on the menu, that&#x27;s it: fried anchovies, tomato salad, butifarra, fried fish. tiny, cheap, perfect. the menu hasn&#x27;t changed since it opened and each dish is packed with flavor. order a small wine straight from the barrel and stand at the bar. the real thing. classic cheap €10–20">
+<div class="card-top"><h4 class="card-name">Bar La Plata</h4></div>
+<div class="tags"><span class="tag price">€10–20</span><span class="tag">classic</span><span class="tag">cheap</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Bar%20La%20Plata%2C%20Carrer%20de%20la%20Merc%C3%A8%2C%2028%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de la Mercè, 28</a><a class="chip" href="http://barlaplata.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">A 1945 institution — four dishes on the menu, that&#x27;s it: fried anchovies, tomato salad, butifarra, fried fish. Tiny, cheap, perfect. The menu hasn&#x27;t changed since it opened and each dish is packed with flavor. Order a small wine straight from the barrel and stand at the bar. The real thing.</div>
+
+</div>
+<div class="card" data-hay="tapeo carrer de montcada, 29 just by the picasso museum. open kitchen, tight space, locally beloved. a slightly more elevated, modern tapas experience. modern €20–30">
+<div class="card-top"><h4 class="card-name">Tapeo</h4></div>
+<div class="tags"><span class="tag price">€20–30</span><span class="tag">modern</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Tapeo%2C%20Carrer%20de%20Montcada%2C%2029%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Montcada, 29</a><a class="chip" href="http://www.tapeoborn.cat/tapeo-del-born.html" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Just by the Picasso Museum. Open kitchen, tight space, locally beloved. A slightly more elevated, modern tapas experience.</div>
+
+</div>
+<div class="card" data-hay="bodega la puntual carrer de montcada, 22 cozy tavern-style spot, good for vermouth-and-tapas in classic surroundings. vermouth cozy €20–30">
+<div class="card-top"><h4 class="card-name">Bodega La Puntual</h4></div>
+<div class="tags"><span class="tag price">€20–30</span><span class="tag">vermouth</span><span class="tag">cozy</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Bodega%20La%20Puntual%2C%20Carrer%20de%20Montcada%2C%2022%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Montcada, 22</a><a class="chip" href="https://grupovarela.es/bodega-la-puntual-barcelona/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Cozy tavern-style spot, good for vermouth-and-tapas in classic surroundings.</div>
+
+</div>
+<div class="card" data-hay="sensi tapas carrer ample, 24 more polished and creative — squid-ink paella, octopus confit, the theatrical flambéed tuna tartare. reserve ahead. a &#x27;stylish night out&#x27; tapas option rather than a gritty classic. stylish book ahead €20–40">
+<div class="card-top"><h4 class="card-name">Sensi Tapas</h4></div>
+<div class="tags"><span class="tag price">€20–40</span><span class="tag">stylish</span><span class="tag book">book ahead</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Sensi%20Tapas%2C%20Carrer%20Ample%2C%2024%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer Ample, 24</a><a class="chip" href="http://www.sensi.es/tapas" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">More polished and creative — squid-ink paella, octopus confit, the theatrical flambéed tuna tartare. Reserve ahead. A &quot;stylish night out&quot; tapas option rather than a gritty classic.</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🥘</span><h3>Catalan home cooking</h3><span class="cat-count">3</span></summary>
+<div class="cards">
+<div class="card" data-hay="can culleretes carrer d&#x27;en quintana, 5 established 1786 — barcelona&#x27;s oldest restaurant. canelons, bacallà a la llauna, game stews in an antique-tiled, time-capsule room. touristy by reputation but the cooking holds up and the room is special — worth it for the history. historic touristy €20–30">
+<div class="card-top"><h4 class="card-name">Can Culleretes</h4></div>
+<div class="tags"><span class="tag price">€20–30</span><span class="tag">historic</span><span class="tag warn">touristy</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Can%20Culleretes%2C%20Carrer%20d%27en%20Quintana%2C%205%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer d&#x27;en Quintana, 5</a><a class="chip" href="https://www.culleretes.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Established 1786 — Barcelona&#x27;s oldest restaurant. Canelons, bacallà a la llauna, game stews in an antique-tiled, time-capsule room. Touristy by reputation but the cooking holds up and the room is special — worth it for the history.</div>
+
+</div>
+<div class="card" data-hay="l&#x27;antic bocoi del gòtic baixada de viladecols, 3 small, warm, defiantly local spot built into the old roman walls — regional produce, meats, cheeses, barrel wine. a good antidote to the internationalized places nearby. local €20–30">
+<div class="card-top"><h4 class="card-name">L&#x27;Antic Bocoi del Gòtic</h4></div>
+<div class="tags"><span class="tag price">€20–30</span><span class="tag">local</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=L%27Antic%20Bocoi%20del%20G%C3%B2tic%2C%20Baixada%20de%20Viladecols%2C%203%2C%20Barcelona" target="_blank" rel="noopener">📍 Baixada de Viladecols, 3</a><a class="chip" href="https://www.bocoi.net/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Small, warm, defiantly local spot built into the old Roman walls — regional produce, meats, cheeses, barrel wine. A good antidote to the internationalized places nearby.</div>
+
+</div>
+<div class="card" data-hay="café de l&#x27;acadèmia carrer dels lledó, 1 a hidden gem on a quiet side street. traditional catalan cooking, a lovely terrace, and almost entirely locals. one of those places that hasn&#x27;t changed in 30 years and is better for it. local terrace €20–30">
+<div class="card-top"><h4 class="card-name">Café de l&#x27;Acadèmia</h4></div>
+<div class="tags"><span class="tag price">€20–30</span><span class="tag">local</span><span class="tag">terrace</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Caf%C3%A9%20de%20l%27Acad%C3%A8mia%2C%20Carrer%20dels%20Lled%C3%B3%2C%201%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer dels Lledó, 1</a><a class="chip" href="https://gruposantelmo.com/en/restaurant/el-cafe-de-lacademia/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">A hidden gem on a quiet side street. Traditional Catalan cooking, a lovely terrace, and almost entirely locals. One of those places that hasn&#x27;t changed in 30 years and is better for it.</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🍷</span><h3>Vermouth &amp; the aperitiu tradition</h3><span class="cat-count">1</span></summary>
+<div class="cards">
+<div class="card" data-hay="la xampanyeria / can paixano carrer de la reina cristina, 7 5 min from the gothic — standing-room cava bar since 1969, house cava around €1.50 a glass, sandwiches stuffed with butifarra or the famous foie-and-bacon. loud, crowded, chaotic — come for the atmosphere and the price. closed sundays. not a meal, an experience. bring the family early before it gets rammed (7–10:30pm is peak chaos). cava cheap closed sun €10–20">
+<div class="card-top"><h4 class="card-name">La Xampanyeria / Can Paixano</h4></div>
+<div class="tags"><span class="tag price">€10–20</span><span class="tag">cava</span><span class="tag">cheap</span><span class="tag warn">closed Sun</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=La%20Xampanyeria%20/%20Can%20Paixano%2C%20Carrer%20de%20la%20Reina%20Cristina%2C%207%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de la Reina Cristina, 7</a><a class="chip" href="https://canpaixano.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">5 min from the Gothic — standing-room cava bar since 1969, house cava around €1.50 a glass, sandwiches stuffed with butifarra or the famous foie-and-bacon. Loud, crowded, chaotic — come for the atmosphere and the price. Closed Sundays. Not a meal, an experience. Bring the family early before it gets rammed (7–10:30pm is peak chaos).</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🍫</span><h3>Granja</h3><span class="cat-count">3</span></summary>
+<div class="cards">
+<div class="card" data-hay="granja la pallaresa carrer de petritxol, 11 the classic sit-down churros-and-thick-chocolate granja on the famous &#x27;chocolate street.&#x27; your churro pilgrimage. churros sit-down family ">
+<div class="card-top"><h4 class="card-name">Granja La Pallaresa</h4></div>
+<div class="tags"><span class="tag">churros</span><span class="tag">sit-down</span><span class="tag">family</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Granja%20La%20Pallaresa%2C%20Carrer%20de%20Petritxol%2C%2011%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Petritxol, 11</a><a class="chip" href="https://www.granjalapallaresa.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">The classic sit-down churros-and-thick-chocolate granja on the famous &quot;chocolate street.&quot; Your churro pilgrimage.</div>
+
+</div>
+<div class="card" data-hay="granja dulcinea carrer de petritxol, 2 directly across the street, equally iconic, same tradition. locals have opinions about which is better; you can settle it yourselves. churros family ">
+<div class="card-top"><h4 class="card-name">Granja Dulcinea</h4></div>
+<div class="tags"><span class="tag">churros</span><span class="tag">family</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Granja%20Dulcinea%2C%20Carrer%20de%20Petritxol%2C%202%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Petritxol, 2</a><a class="chip" href="https://www.granjadulcinea.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Directly across the street, equally iconic, same tradition. Locals have opinions about which is better; you can settle it yourselves.</div>
+
+</div>
+<div class="card" data-hay="granja m. viader carrer d&#x27;en xuclà, 4–6 the original — the granja that invented cacaolat (spain&#x27;s beloved chocolate milk) over a century ago. more of a neighborhood institution and a little less touristy than the petritxol pair. historic local €1–10">
+<div class="card-top"><h4 class="card-name">Granja M. Viader</h4></div>
+<div class="tags"><span class="tag price">€1–10</span><span class="tag">historic</span><span class="tag">local</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Granja%20M.%20Viader%2C%20Carrer%20d%27en%20Xucl%C3%A0%2C%204%E2%80%936%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer d&#x27;en Xuclà, 4–6</a><a class="chip" href="https://granjaviader.cat/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">The original — the granja that invented Cacaolat (Spain&#x27;s beloved chocolate milk) over a century ago. More of a neighborhood institution and a little less touristy than the Petritxol pair.</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🏛️</span><h3>Markets</h3><span class="cat-count">1</span></summary>
+<div class="cards">
+<div class="card" data-hay="la boqueria la rambla, 91 the famous one. touristy and crowded at the front, but it&#x27;s right on your doorstep and the back stalls are still legit. the move is to eat at a counter — go early (by 9–9:30am) to beat the crush, which doubles as a great breakfast outing. famous go early ">
+<div class="card-top"><h4 class="card-name">La Boqueria</h4></div>
+<div class="tags"><span class="tag">famous</span><span class="tag book">go early</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=La%20Boqueria%2C%20La%20Rambla%2C%2091%2C%20Barcelona" target="_blank" rel="noopener">📍 La Rambla, 91</a><a class="chip" href="https://www.boqueria.barcelona/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">The famous one. Touristy and crowded at the front, but it&#x27;s right on your doorstep and the back stalls are still legit. The move is to eat at a counter — go early (by 9–9:30am) to beat the crush, which doubles as a great breakfast outing.</div>
+<ul class="card-bullets"><li><b>Bar Pinotxo</b> — the iconic market counter; Juanito behind the bar is a Barcelona institution. Go mid-morning, eat whatever they put in front of you.</li><li><b>El Quim de la Boqueria</b> — the other great counter, famous for eggs with baby squid.</li></ul>
+</div>
+</div>
+</details>
+</section><section class="nbhd" id="nb-born">
+<div class="nbhd-head"><h2><span class="accent">⭐</span> El Born</h2><p class="nbhd-blurb">Your home base. The densest, best eating in the old town — pastry capital, the cava institutions, and Estimar for a seafood splurge.</p></div>
+<div class="collapse-bar"><button class="collapse-toggle" data-state="expanded">▾ Collapse all</button></div>
+<details class="cat" open>
+<summary class="cat-h"><span class="pin">🍢</span><h3>Tapas &amp; pintxos bars</h3><span class="cat-count">7</span></summary>
+<div class="cards">
+<div class="card" data-hay="cal pep plaça de les olles, 8 probably the single most famous tapas counter in barcelona. pep presides over some of the best fresh seafood tapas in town — but you&#x27;ll have to queue, and pay, for the privilege. no reservations; just 20 stools, and people line up before it opens. sit at the bar and let them feed you. pricey but memorable. tip: if the line&#x27;s brutal, sister spot passadis del pep is a block away — no menu, they just bring food until you surrender. legendary seafood no-reso go early €30–60">
+<div class="card-top"><h4 class="card-name">Cal Pep</h4></div>
+<div class="tags"><span class="tag price">€30–60</span><span class="tag">legendary</span><span class="tag">seafood</span><span class="tag book">no-reso</span><span class="tag book">go early</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Cal%20Pep%2C%20Pla%C3%A7a%20de%20les%20Olles%2C%208%2C%20Barcelona" target="_blank" rel="noopener">📍 Plaça de les Olles, 8</a><a class="chip" href="https://www.calpep.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Probably the single most famous tapas counter in Barcelona. Pep presides over some of the best fresh seafood tapas in town — but you&#x27;ll have to queue, and pay, for the privilege. No reservations; just 20 stools, and people line up before it opens. Sit at the bar and let them feed you. Pricey but memorable. Tip: if the line&#x27;s brutal, sister spot Passadis del Pep is a block away — no menu, they just bring food until you surrender.</div>
+
+</div>
+<div class="card" data-hay="el xampanyet carrer de montcada, 22 right by the picasso museum. a 1930s classic: house cava and marinated anchovies served since the 1930s. tiled, loud, hung with hams. the el born vermouth-and-cava institution (so it covers your aperitiu category too). get there early; it fills instantly. cava 1930s go early €20–30">
+<div class="card-top"><h4 class="card-name">El Xampanyet</h4></div>
+<div class="tags"><span class="tag price">€20–30</span><span class="tag">cava</span><span class="tag">1930s</span><span class="tag book">go early</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=El%20Xampanyet%2C%20Carrer%20de%20Montcada%2C%2022%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Montcada, 22</a><a class="chip" href="http://elxampanyet.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Right by the Picasso Museum. A 1930s classic: house cava and marinated anchovies served since the 1930s. Tiled, loud, hung with hams. The El Born vermouth-and-cava institution (so it covers your aperitiu category too). Get there early; it fills instantly.</div>
+
+</div>
+<div class="card" data-hay="tapeo carrer de montcada, 29 right by the picasso museum, open kitchen, modern-but-grounded tapas. the local foodie pick that the tourist crowds somehow haven&#x27;t swamped — order the croquettes and bravas. modern foodie pick €20–30">
+<div class="card-top"><h4 class="card-name">Tapeo</h4></div>
+<div class="tags"><span class="tag price">€20–30</span><span class="tag">modern</span><span class="tag">foodie pick</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Tapeo%2C%20Carrer%20de%20Montcada%2C%2029%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Montcada, 29</a><a class="chip" href="http://www.tapeoborn.cat/tapeo-del-born.html" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Right by the Picasso Museum, open kitchen, modern-but-grounded tapas. The local foodie pick that the tourist crowds somehow haven&#x27;t swamped — order the croquettes and bravas.</div>
+
+</div>
+<div class="card" data-hay="bar brutal carrer de la princesa, 14 a natural-wine bar with serious cooking and a cool, edgy vibe. standouts include seared tuna, porchetta sandwich, and pulpo — bold and beautifully executed. this is where you go for the modern, wine-forward side of born. reserve. natural wine book ahead €20–60">
+<div class="card-top"><h4 class="card-name">Bar Brutal</h4></div>
+<div class="tags"><span class="tag price">€20–60</span><span class="tag">natural wine</span><span class="tag book">book ahead</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Bar%20Brutal%2C%20Carrer%20de%20la%20Princesa%2C%2014%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de la Princesa, 14</a><a class="chip" href="https://barbrutal.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">A natural-wine bar with serious cooking and a cool, edgy vibe. Standouts include seared tuna, porchetta sandwich, and pulpo — bold and beautifully executed. This is where you go for the modern, wine-forward side of Born. Reserve.</div>
+
+</div>
+<div class="card" data-hay="el set carrer de l&#x27;esparteria, 7 slightly refined tapas and a standout cheese selection. next door to la tinaja, below. cheese refined €20–30">
+<div class="card-top"><h4 class="card-name">El SET</h4></div>
+<div class="tags"><span class="tag price">€20–30</span><span class="tag">cheese</span><span class="tag">refined</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=El%20SET%2C%20Carrer%20de%20l%27Esparteria%2C%207%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de l&#x27;Esparteria, 7</a></div>
+<div class="desc">Slightly refined tapas and a standout cheese selection. Next door to La Tinaja, below.</div>
+
+</div>
+<div class="card" data-hay="bodega la tinaja carrer de l&#x27;esparteria, 9 a more traditional, full-of-character bodega experience. old-world, country-style tavern offering cured meats &amp; cheeses, along with tapas &amp; wine. right next door to el set. traditional bodega €20–30">
+<div class="card-top"><h4 class="card-name">Bodega La Tinaja</h4></div>
+<div class="tags"><span class="tag price">€20–30</span><span class="tag">traditional</span><span class="tag">bodega</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Bodega%20La%20Tinaja%2C%20Carrer%20de%20l%27Esparteria%2C%209%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de l&#x27;Esparteria, 9</a><a class="chip" href="https://www.instagram.com/bodegalatinaja/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">A more traditional, full-of-character bodega experience. Old-world, country-style tavern offering cured meats &amp; cheeses, along with tapas &amp; wine. Right next door to El SET.</div>
+
+</div>
+<div class="card" data-hay="bormuth plaça comercial, 1 traditional fare served in a cozy tapas bar with a down-to-earth vibe, plus outdoor seating. reliable, lively, classic tapas with a great vermouth pour. solid neighborhood all-rounder. all-rounder vermouth €10–20">
+<div class="card-top"><h4 class="card-name">Bormuth</h4></div>
+<div class="tags"><span class="tag price">€10–20</span><span class="tag">all-rounder</span><span class="tag">vermouth</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Bormuth%2C%20Pla%C3%A7a%20Comercial%2C%201%2C%20Barcelona" target="_blank" rel="noopener">📍 Plaça Comercial, 1</a><a class="chip" href="https://www.bormuthbarcelona.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Traditional fare served in a cozy tapas bar with a down-to-earth vibe, plus outdoor seating. Reliable, lively, classic tapas with a great vermouth pour. Solid neighborhood all-rounder.</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🍸</span><h3>Cocktail bars</h3><span class="cat-count">1</span></summary>
+<div class="cards">
+<div class="card" data-hay="paradiso carrer de rera palau, 4 currently the #4 ranked bar in the world. closer to fine dining with booze than a regular bar — tasting menus, showtime service, drinks that look and taste like art. a hidden speakeasy entered through a pastrami shop in el born, theatrical and surreal. reservation-or-queue, so plan ahead. (note: a destination cocktail bar reads as adult nightlife — if you want to bring maya for the theater of it, book the earliest slot and message ahead; otherwise it&#x27;s a great date night.) #4 in world speakeasy book ahead €10–30">
+<div class="card-top"><h4 class="card-name">Paradiso</h4></div>
+<div class="tags"><span class="tag price">€10–30</span><span class="tag">#4 in world</span><span class="tag">speakeasy</span><span class="tag book">book ahead</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Paradiso%2C%20Carrer%20de%20Rera%20Palau%2C%204%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Rera Palau, 4</a><a class="chip" href="https://paradiso.cat/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Currently the #4 ranked bar in the world. Closer to fine dining with booze than a regular bar — tasting menus, showtime service, drinks that look and taste like art. A hidden speakeasy entered through a pastrami shop in El Born, theatrical and surreal. Reservation-or-queue, so plan ahead. (Note: a destination cocktail bar reads as adult nightlife — if you want to bring Maya for the theater of it, book the earliest slot and message ahead; otherwise it&#x27;s a great date night.)</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🥘</span><h3>Catalan home cooking</h3><span class="cat-count">3</span></summary>
+<div class="cards">
+<div class="card" data-hay="senyor parellada carrer de l&#x27;argenteria, 37 beautiful high-ceilinged dining room, dependable traditional catalan, great for a proper sit-down lunch. beautiful room lunch ">
+<div class="card-top"><h4 class="card-name">Senyor Parellada</h4></div>
+<div class="tags"><span class="tag">beautiful room</span><span class="tag">lunch</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Senyor%20Parellada%2C%20Carrer%20de%20l%27Argenteria%2C%2037%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de l&#x27;Argenteria, 37</a><a class="chip" href="https://www.senyorparellada.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Beautiful high-ceilinged dining room, dependable traditional Catalan, great for a proper sit-down lunch.</div>
+
+</div>
+<div class="card" data-hay="casa delfín passeig del born, 36 right on the born promenade, traditional catalan/mediterranean with a charming room and terrace. good for the family — grilled vegetables, fish, classics done well. family terrace €20–30">
+<div class="card-top"><h4 class="card-name">Casa Delfín</h4></div>
+<div class="tags"><span class="tag price">€20–30</span><span class="tag">family</span><span class="tag">terrace</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Casa%20Delf%C3%ADn%2C%20Passeig%20del%20Born%2C%2036%2C%20Barcelona" target="_blank" rel="noopener">📍 Passeig del Born, 36</a><a class="chip" href="http://www.casadelfinrestaurant.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Right on the Born promenade, traditional Catalan/Mediterranean with a charming room and terrace. Good for the family — grilled vegetables, fish, classics done well.</div>
+
+</div>
+<div class="card" data-hay="restaurant petra carrer dels sombrerers, 13 a cozy, softly lit space that blends mediterranean and catalan flavors with a modern touch. standout dishes include roasted vegetable salad, tuna tartare, slow-cooked pork, and seafood pasta. budget charming casual €20–30">
+<div class="card-top"><h4 class="card-name">Restaurant Petra</h4></div>
+<div class="tags"><span class="tag price">€20–30</span><span class="tag">budget</span><span class="tag">charming</span><span class="tag">casual</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Restaurant%20Petra%2C%20Carrer%20dels%20Sombrerers%2C%2013%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer dels Sombrerers, 13</a><a class="chip" href="http://restaurant-petra-barcelona.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">A cozy, softly lit space that blends Mediterranean and Catalan flavors with a modern touch. Standout dishes include roasted vegetable salad, tuna tartare, slow-cooked pork, and seafood pasta.</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🦐</span><h3>Seafood / marisquerías</h3><span class="cat-count">2</span></summary>
+<div class="cards">
+<div class="card" data-hay="estimar carrer de sant antoni dels sombrerers, 3 if you&#x27;re looking to splurge on a special meal, this upscale spot is noted as having the best seafood in el born. the day&#x27;s catch sits on ice in front of the open kitchen — langoustine, oysters, razor clams, octopus, whole fish — and seafood this fresh comes at a cost. splurge seafood book ahead €100+">
+<div class="card-top"><h4 class="card-name">Estimar</h4></div>
+<div class="tags"><span class="tag price">€100+</span><span class="tag">splurge</span><span class="tag">seafood</span><span class="tag book">book ahead</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Estimar%2C%20Carrer%20de%20Sant%20Antoni%20dels%20Sombrerers%2C%203%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Sant Antoni dels Sombrerers, 3</a><a class="chip" href="http://www.restaurante-estimar.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">If you&#x27;re looking to splurge on a special meal, this upscale spot is noted as having the best seafood in El Born. The day&#x27;s catch sits on ice in front of the open kitchen — langoustine, oysters, razor clams, octopus, whole fish — and seafood this fresh comes at a cost.</div>
+
+</div>
+<div class="card" data-hay="cal pep plaça de les olles, 8 overlaps heavily here — much of what makes it great is the seafood. (full entry under tapas.) for a dedicated marisquería, barceloneta is still the move. overlap seafood €30–60">
+<div class="card-top"><h4 class="card-name">Cal Pep</h4></div>
+<div class="tags"><span class="tag price">€30–60</span><span class="tag">overlap</span><span class="tag">seafood</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Cal%20Pep%2C%20Pla%C3%A7a%20de%20les%20Olles%2C%208%2C%20Barcelona" target="_blank" rel="noopener">📍 Plaça de les Olles, 8</a><a class="chip" href="https://www.calpep.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Overlaps heavily here — much of what makes it great is the seafood. (Full entry under Tapas.) For a dedicated marisquería, Barceloneta is still the move.</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🍷</span><h3>Vermouth &amp; the aperitiu tradition</h3><span class="cat-count">2</span></summary>
+<div class="cards">
+<div class="card" data-hay="el xampanyet carrer de montcada, 22 the headline act for the aperitiu hour (full entry under tapas). headline cava €20–30">
+<div class="card-top"><h4 class="card-name">El Xampanyet</h4></div>
+<div class="tags"><span class="tag price">€20–30</span><span class="tag">headline</span><span class="tag">cava</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=El%20Xampanyet%2C%20Carrer%20de%20Montcada%2C%2022%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Montcada, 22</a><a class="chip" href="http://elxampanyet.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">The headline act for the aperitiu hour (full entry under Tapas).</div>
+
+</div>
+<div class="card" data-hay="bormuth plaça comercial, 1 also delivers here. between the two you&#x27;re well covered for the weekend fer el vermut ritual without leaving the neighborhood. vermouth €10–20">
+<div class="card-top"><h4 class="card-name">Bormuth</h4></div>
+<div class="tags"><span class="tag price">€10–20</span><span class="tag">vermouth</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Bormuth%2C%20Pla%C3%A7a%20Comercial%2C%201%2C%20Barcelona" target="_blank" rel="noopener">📍 Plaça Comercial, 1</a><a class="chip" href="https://www.bormuthbarcelona.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Also delivers here. Between the two you&#x27;re well covered for the weekend fer el vermut ritual without leaving the neighborhood.</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🏛️</span><h3>Markets</h3><span class="cat-count">1</span></summary>
+<div class="cards">
+<div class="card" data-hay="mercat de santa caterina avinguda de francesc cambó, 16 the one with the spectacular wavy, technicolor miralles roof. far less touristy than la boqueria, genuinely a local market. there&#x27;s a good tapas bar inside (cuines santa caterina) for an easy, high-quality lunch right in the market. local less touristy ">
+<div class="card-top"><h4 class="card-name">Mercat de Santa Caterina</h4></div>
+<div class="tags"><span class="tag">local</span><span class="tag warn">less touristy</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Mercat%20de%20Santa%20Caterina%2C%20Avinguda%20de%20Francesc%20Camb%C3%B3%2C%2016%2C%20Barcelona" target="_blank" rel="noopener">📍 Avinguda de Francesc Cambó, 16</a><a class="chip" href="https://www.mercatsantacaterina.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">The one with the spectacular wavy, technicolor Miralles roof. Far less touristy than La Boqueria, genuinely a local market. There&#x27;s a good tapas bar inside (Cuines Santa Caterina) for an easy, high-quality lunch right in the market.</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🥐</span><h3>Forn / pastisseria</h3><span class="cat-count">4</span></summary>
+<div class="cards">
+<div class="card" data-hay="hofmann pastisseria carrer dels flassaders, 44 the famous one, tied to the hofmann culinary school. the mascarpone croissant is the legendary order. internationally known and draws visitors from around the world. go early. famous go early ">
+<div class="card-top"><h4 class="card-name">Hofmann Pastisseria</h4></div>
+<div class="tags"><span class="tag">famous</span><span class="tag book">go early</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Hofmann%20Pastisseria%2C%20Carrer%20dels%20Flassaders%2C%2044%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer dels Flassaders, 44</a><a class="chip" href="https://www.hofmann-bcn.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">The famous one, tied to the Hofmann culinary school. The mascarpone croissant is the legendary order. Internationally known and draws visitors from around the world. Go early.</div>
+
+</div>
+<div class="card" data-hay="brunells carrer de la princesa, 22 a historic landmark that first opened in 1852 in el born, spectacularly revived in 2020; it won &#x27;best butter croissant in spain&#x27; in 2020, known for its honeycomb interior, and the pistachio croissant is arguably one of the best in spain. it also has a proper sit-down café side with specialty coffee — so this one can double as a real breakfast spot. (caveat: right by the picasso museum, can get mobbed/uneven on service — go early.) historic sit-down café go early ">
+<div class="card-top"><h4 class="card-name">Brunells</h4></div>
+<div class="tags"><span class="tag">historic</span><span class="tag">sit-down café</span><span class="tag book">go early</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Brunells%2C%20Carrer%20de%20la%20Princesa%2C%2022%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de la Princesa, 22</a><a class="chip" href="https://www.brunells1852.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">A historic landmark that first opened in 1852 in El Born, spectacularly revived in 2020; it won &quot;Best Butter Croissant in Spain&quot; in 2020, known for its honeycomb interior, and the pistachio croissant is arguably one of the best in Spain. It also has a proper sit-down café side with specialty coffee — so this one can double as a real breakfast spot. (Caveat: right by the Picasso Museum, can get mobbed/uneven on service — go early.)</div>
+
+</div>
+<div class="card" data-hay="bubó carrer de les caputxes, 10 jewel-like, constantly rotating imaginative desserts and award-winning chocolate croissants — little pieces of art, and a bit pricier. great for sampling several small things. desserts chocolate pricier ">
+<div class="card-top"><h4 class="card-name">Bubó</h4></div>
+<div class="tags"><span class="tag">desserts</span><span class="tag">chocolate</span><span class="tag">pricier</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Bub%C3%B3%2C%20Carrer%20de%20les%20Caputxes%2C%2010%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de les Caputxes, 10</a><a class="chip" href="https://bubo.es/en/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Jewel-like, constantly rotating imaginative desserts and award-winning chocolate croissants — little pieces of art, and a bit pricier. Great for sampling several small things.</div>
+
+</div>
+<div class="card" data-hay="demasie carrer de la princesa, 28 specializes in cinnamon rolls with unique twists. a fun, lower-key kid-pleaser. → croissant tournament: hofmann vs brunells vs bubó on different mornings. cinnamon rolls kid-pleaser ">
+<div class="card-top"><h4 class="card-name">Demasie</h4></div>
+<div class="tags"><span class="tag">cinnamon rolls</span><span class="tag">kid-pleaser</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Demasie%2C%20Carrer%20de%20la%20Princesa%2C%2028%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de la Princesa, 28</a><a class="chip" href="http://cookiesdemasie.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Specializes in cinnamon rolls with unique twists. A fun, lower-key kid-pleaser. → Croissant tournament: Hofmann vs Brunells vs Bubó on different mornings.</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">☕</span><h3>Cafè / cafeteria</h3><span class="cat-count">3</span></summary>
+<div class="cards">
+<div class="card" data-hay="el magnífico carrer de l&#x27;argenteria, 64 not a café exactly but a legendary specialty coffee roaster; serious coffee people make the pilgrimage. pair it with a pastry from nearby. coffee roaster ">
+<div class="card-top"><h4 class="card-name">El Magnífico</h4></div>
+<div class="tags"><span class="tag">coffee roaster</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=El%20Magn%C3%ADfico%2C%20Carrer%20de%20l%27Argenteria%2C%2064%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de l&#x27;Argenteria, 64</a><a class="chip" href="https://www.cafeselmagnifico.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Not a café exactly but a legendary specialty coffee roaster; serious coffee people make the pilgrimage. Pair it with a pastry from nearby.</div>
+
+</div>
+<div class="card" data-hay="brunells carrer de la princesa, 22 also fills the proper-breakfast-café role nicely (full entry under pastisseria). breakfast café ">
+<div class="card-top"><h4 class="card-name">Brunells</h4></div>
+<div class="tags"><span class="tag">breakfast café</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Brunells%2C%20Carrer%20de%20la%20Princesa%2C%2022%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de la Princesa, 22</a><a class="chip" href="https://www.brunells1852.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Also fills the proper-breakfast-café role nicely (full entry under Pastisseria).</div>
+
+</div>
+<div class="card" data-hay="funky bakers passeig del born, 10 a great call for takeaway coffee-and-pastry — a vibrant modern bakery-deli that&#x27;s a cornerstone of el born: excellent sourdough, creative sandwiches, flaky pastries, and specialty coffee. the coffee is from nomad (one of the city&#x27;s best roasters), and the basque-style cheesecake is considered among the best in barcelona. grab-and-go specialty coffee cheesecake ">
+<div class="card-top"><h4 class="card-name">Funky Bakers</h4></div>
+<div class="tags"><span class="tag">grab-and-go</span><span class="tag">specialty coffee</span><span class="tag">cheesecake</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Funky%20Bakers%2C%20Passeig%20del%20Born%2C%2010%2C%20Barcelona" target="_blank" rel="noopener">📍 Passeig del Born, 10</a><a class="chip" href="https://funkybakers.com/pages/bakery-deli" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">A great call for takeaway coffee-and-pastry — a vibrant modern bakery-deli that&#x27;s a cornerstone of El Born: excellent sourdough, creative sandwiches, flaky pastries, and specialty coffee. The coffee is from Nomad (one of the city&#x27;s best roasters), and the Basque-style cheesecake is considered among the best in Barcelona.</div>
+
+</div>
+</div>
+</details>
+</section><section class="nbhd" id="nb-barceloneta">
+<div class="nbhd-head"><h2><span class="accent">🏖️</span> Barceloneta</h2><p class="nbhd-blurb">Beach day. The city&#x27;s best rice houses AND its worst tourist traps. Avoid the Passeig de Joan de Borbó promenade and Port Olímpic; the good places hide in the interior streets. Real rice takes 20+ min and several spots are cash-only.</p></div>
+<div class="collapse-bar"><button class="collapse-toggle" data-state="expanded">▾ Collapse all</button></div>
+<details class="cat" open>
+<summary class="cat-h"><span class="pin">🍚</span><h3>Rice &amp; fideuà</h3><span class="cat-count">5</span></summary>
+<div class="cards">
+<div class="card" data-hay="can solé carrer de sant carles, 4 the grande dame. a barceloneta institution since 1903, built on exceptional rice dishes and the freshest seafood; the arròs a banda is one of the most-requested dishes, and over the years it fed joan miró and antoni tàpies. the white-tablecloth, special-occasion rice house. if you do one proper sit-down rice lunch, this is the top pick. reserve. grande dame top pick book ahead ">
+<div class="card-top"><h4 class="card-name">Can Solé</h4></div>
+<div class="tags"><span class="tag">grande dame</span><span class="tag">top pick</span><span class="tag book">book ahead</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Can%20Sol%C3%A9%2C%20Carrer%20de%20Sant%20Carles%2C%204%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Sant Carles, 4</a><a class="chip" href="https://restaurantcansole.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">The grande dame. A Barceloneta institution since 1903, built on exceptional rice dishes and the freshest seafood; the arròs a banda is one of the most-requested dishes, and over the years it fed Joan Miró and Antoni Tàpies. The white-tablecloth, special-occasion rice house. If you do one proper sit-down rice lunch, this is the top pick. Reserve.</div>
+
+</div>
+<div class="card" data-hay="can ros c/ d&#x27;emília llorca martín, 7 a cornerstone of barcelona&#x27;s seafood culture since 1908, now run by the fifth generation of the cid family; their arròs negre with artichokes and cockles is legendary, and they source straight from the daily fishermen&#x27;s auction. warmer and more family-tavern than can solé. an excellent alternative if can solé is booked. since 1908 family-run ">
+<div class="card-top"><h4 class="card-name">Can Ros</h4></div>
+<div class="tags"><span class="tag">since 1908</span><span class="tag">family-run</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Can%20Ros%2C%20C/%20d%27Em%C3%ADlia%20Llorca%20Mart%C3%ADn%2C%207%2C%20Barcelona" target="_blank" rel="noopener">📍 C/ d&#x27;Emília Llorca Martín, 7</a><a class="chip" href="http://www.canros.cat/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">A cornerstone of Barcelona&#x27;s seafood culture since 1908, now run by the fifth generation of the Cid family; their arròs negre with artichokes and cockles is legendary, and they source straight from the daily fishermen&#x27;s auction. Warmer and more family-tavern than Can Solé. An excellent alternative if Can Solé is booked.</div>
+
+</div>
+<div class="card" data-hay="can ramonet carrer de la maquinista, 17 one of the oldest in the quarter, strong on km-0 fresh produce, rice, fish, and shellfish. another dependable traditional option. old-school value ">
+<div class="card-top"><h4 class="card-name">Can Ramonet</h4></div>
+<div class="tags"><span class="tag">old-school</span><span class="tag">value</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Can%20Ramonet%2C%20Carrer%20de%20la%20Maquinista%2C%2017%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de la Maquinista, 17</a><a class="chip" href="https://grupramonet.com/canramonet/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">One of the oldest in the quarter, strong on km-0 fresh produce, rice, fish, and shellfish. Another dependable traditional option.</div>
+
+</div>
+<div class="card" data-hay="ca la nuri (platja) passeig marítim, 55 the exception to the &#x27;avoid the waterfront&#x27; rule worth knowing about: right on the beach, great for an informal lunch with a maritime atmosphere and sea views, known for rice dishes but the fideuà and tapas are also good. your toes-near-the-sand option if your beach day demands it. still touristy — but a legitimate kitchen, unlike its neighbors. beachfront sea views touristy ">
+<div class="card-top"><h4 class="card-name">Ca la Nuri (Platja)</h4></div>
+<div class="tags"><span class="tag">beachfront</span><span class="tag">sea views</span><span class="tag warn">touristy</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Ca%20la%20Nuri%20%28Platja%29%2C%20Passeig%20Mar%C3%ADtim%2C%2055%2C%20Barcelona" target="_blank" rel="noopener">📍 Passeig Marítim, 55</a><a class="chip" href="http://restaurantcalanuri.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">The exception to the &quot;avoid the waterfront&quot; rule worth knowing about: right on the beach, great for an informal lunch with a maritime atmosphere and sea views, known for rice dishes but the fideuà and tapas are also good. Your toes-near-the-sand option if your beach day demands it. Still touristy — but a legitimate kitchen, unlike its neighbors.</div>
+
+</div>
+<div class="card" data-hay="casa maians carrer de sant carles, 28 the more contemporary, &#x27;2026-coded&#x27; local go-to; people come for freshly caught seafood and intensely rich rice with pork shoulder, mushrooms and peppers, or black squid-ink rice. a good pick if you&#x27;d rather eat with locals than tourists. → order one rice dish fewer than the number of diners; with three of you, two rice dishes plus tapas is plenty. modern local ">
+<div class="card-top"><h4 class="card-name">Casa Maians</h4></div>
+<div class="tags"><span class="tag">modern</span><span class="tag">local</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Casa%20Maians%2C%20Carrer%20de%20Sant%20Carles%2C%2028%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Sant Carles, 28</a><a class="chip" href="http://casamaians.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">The more contemporary, &quot;2026-coded&quot; local go-to; people come for freshly caught seafood and intensely rich rice with pork shoulder, mushrooms and peppers, or black squid-ink rice. A good pick if you&#x27;d rather eat with locals than tourists. → Order one rice dish fewer than the number of diners; with three of you, two rice dishes plus tapas is plenty.</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🦐</span><h3>Seafood / marisquerías</h3><span class="cat-count">2</span></summary>
+<div class="cards">
+<div class="card" data-hay="la cova fumada carrer del baluard, 56 the legendary one. a classic dating to 1944, no sign on the door, somewhat random hours, no menu (check the blackboard) — but very much worth the effort, with excellent tapas from fresh ingredients. the birthplace of the bomba — a deep-fried potato ball stuffed with spicy beef, topped with the bravas sauces. cash only, no reservations, get there early. the soul-of-the-neighborhood pick. legendary cash only no-reso no sign go early €10–20">
+<div class="card-top"><h4 class="card-name">La Cova Fumada</h4></div>
+<div class="tags"><span class="tag price">€10–20</span><span class="tag">legendary</span><span class="tag cash">cash only</span><span class="tag book">no-reso</span><span class="tag warn">no sign</span><span class="tag book">go early</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=La%20Cova%20Fumada%2C%20Carrer%20del%20Baluard%2C%2056%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer del Baluard, 56</a><a class="chip" href="https://lacovafumada.shop/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">The legendary one. A classic dating to 1944, no sign on the door, somewhat random hours, no menu (check the blackboard) — but very much worth the effort, with excellent tapas from fresh ingredients. The birthplace of the bomba — a deep-fried potato ball stuffed with spicy beef, topped with the bravas sauces. Cash only, no reservations, get there early. The soul-of-the-neighborhood pick.</div>
+
+</div>
+<div class="card" data-hay="la bombeta carrer de la maquinista, 3 the other bomba claimant. locals argue fiercely over which invented it, though you&#x27;d be hard-pressed to tell them apart in a blind tasting. simple, classic, generous, well-priced. → seek out: suquet de peix, grilled razor clams, and espardenyes (sea cucumbers) if you&#x27;re adventurous. bomba cheap classic €10–20">
+<div class="card-top"><h4 class="card-name">La Bombeta</h4></div>
+<div class="tags"><span class="tag price">€10–20</span><span class="tag">bomba</span><span class="tag">cheap</span><span class="tag">classic</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=La%20Bombeta%2C%20Carrer%20de%20la%20Maquinista%2C%203%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de la Maquinista, 3</a></div>
+<div class="desc">The other bomba claimant. Locals argue fiercely over which invented it, though you&#x27;d be hard-pressed to tell them apart in a blind tasting. Simple, classic, generous, well-priced. → Seek out: suquet de peix, grilled razor clams, and espardenyes (sea cucumbers) if you&#x27;re adventurous.</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🍷</span><h3>Vermouth &amp; the aperitiu tradition</h3><span class="cat-count">1</span></summary>
+<div class="cards">
+<div class="card" data-hay="la xampanyeria / can paixano carrer de la reina cristina, 7 on the barceloneta edge — a natural standing-room cava-and-bocadillo stop on your beach day. (same one listed under gothic; don&#x27;t double-count.) → suggested shape: morning beach → rice lunch at can solé (or ca la nuri for sea views) → a bomba + vermouth standing up at la cova fumada or can paixano. cava cheap €10–20">
+<div class="card-top"><h4 class="card-name">La Xampanyeria / Can Paixano</h4></div>
+<div class="tags"><span class="tag price">€10–20</span><span class="tag">cava</span><span class="tag">cheap</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=La%20Xampanyeria%20/%20Can%20Paixano%2C%20Carrer%20de%20la%20Reina%20Cristina%2C%207%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de la Reina Cristina, 7</a><a class="chip" href="https://canpaixano.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">On the Barceloneta edge — a natural standing-room cava-and-bocadillo stop on your beach day. (Same one listed under Gothic; don&#x27;t double-count.) → Suggested shape: morning beach → rice lunch at Can Solé (or Ca la Nuri for sea views) → a bomba + vermouth standing up at La Cova Fumada or Can Paixano.</div>
+
+</div>
+</div>
+</details>
+</section><section class="nbhd" id="nb-eixample">
+<div class="nbhd-head"><h2><span class="accent">📐</span> Eixample</h2><p class="nbhd-blurb">Fine-dining and elevated-everyday district — the Gaudí sights live here, so it overlaps your sightseeing. Esquerra holds most of the serious kitchens; Sant Antoni is the hip food-and-wine corner.</p></div>
+<div class="collapse-bar"><button class="collapse-toggle" data-state="expanded">▾ Collapse all</button></div>
+<details class="cat" open>
+<summary class="cat-h"><span class="pin">✨</span><h3>Modernist / avant-garde dining</h3><span class="cat-count">4</span></summary>
+<div class="cards">
+<div class="card" data-hay="disfrutar carrer de villarroel, 163 the headliner, and the one to push toward most. the three owners were each head chefs at el bulli, and they&#x27;ve brought all that expertise here without any snobbishness — one of the best restaurants in the world yet remarkably laid-back. what you see on the plate is rarely what you taste — a panchino filled with beluga caviar, a &#x27;gazpacho sandwich&#x27; that&#x27;s tomato-flavored meringue with gazpacho sorbet. the single most &#x27;worth it&#x27; booking in the city for your sensibility. critical: book 2–4 months ahead the day reservations open. the most time-sensitive thing in the whole plan. #1 splurge world&#x27;s 50 best book 2–4 mo ahead ">
+<div class="card-top"><h4 class="card-name">Disfrutar</h4></div>
+<div class="tags"><span class="tag">#1 splurge</span><span class="tag">World&#x27;s 50 Best</span><span class="tag book">book 2–4 mo ahead</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Disfrutar%2C%20Carrer%20de%20Villarroel%2C%20163%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Villarroel, 163</a><a class="chip" href="https://www.disfrutarbarcelona.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">The headliner, and the one to push toward most. The three owners were each head chefs at El Bulli, and they&#x27;ve brought all that expertise here without any snobbishness — one of the best restaurants in the world yet remarkably laid-back. What you see on the plate is rarely what you taste — a panchino filled with beluga caviar, a &quot;gazpacho sandwich&quot; that&#x27;s tomato-flavored meringue with gazpacho sorbet. The single most &quot;worth it&quot; booking in the city for your sensibility. CRITICAL: book 2–4 months ahead the day reservations open. The most time-sensitive thing in the whole plan.</div>
+
+</div>
+<div class="card" data-hay="cinc sentits carrer d&#x27;entença, 60 the more emotionally resonant, less circus-y option, and arguably the better fit if you want depth over spectacle. chef jordi artal spotlights the region&#x27;s finest ingredients; no à la carte, only a tasting menu — reinterpretations of traditional catalan dishes with cutting-edge technique, matched with exclusive wines. if disfrutar is the fireworks, cinc sentits is the soul. easier to book. soul tasting menu book 2–3 wk ">
+<div class="card-top"><h4 class="card-name">Cinc Sentits</h4></div>
+<div class="tags"><span class="tag">soul</span><span class="tag">tasting menu</span><span class="tag book">book 2–3 wk</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Cinc%20Sentits%2C%20Carrer%20d%27Enten%C3%A7a%2C%2060%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer d&#x27;Entença, 60</a><a class="chip" href="https://www.cincsentits.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">The more emotionally resonant, less circus-y option, and arguably the better fit if you want depth over spectacle. Chef Jordi Artal spotlights the region&#x27;s finest ingredients; no à la carte, only a tasting menu — reinterpretations of traditional Catalan dishes with cutting-edge technique, matched with exclusive wines. If Disfrutar is the fireworks, Cinc Sentits is the soul. Easier to book.</div>
+
+</div>
+<div class="card" data-hay="lasarte carrer de mallorca, 259 martín berasategui&#x27;s three-star — the most formal, classic haute-cuisine option of the three. the full white-glove three-star experience, though less distinctively catalan and more international-luxe than the two above. 3 michelin formal white-glove ">
+<div class="card-top"><h4 class="card-name">Lasarte</h4></div>
+<div class="tags"><span class="tag">3 Michelin</span><span class="tag">formal</span><span class="tag">white-glove</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Lasarte%2C%20Carrer%20de%20Mallorca%2C%20259%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Mallorca, 259</a><a class="chip" href="https://www.restaurantlasarte.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Martín Berasategui&#x27;s three-star — the most formal, classic haute-cuisine option of the three. The full white-glove three-star experience, though less distinctively Catalan and more international-luxe than the two above.</div>
+
+</div>
+<div class="card" data-hay="alkimia ronda de sant antoni, 41 jordi vilà&#x27;s modern catalan, a notch more accessible than the above but still ambitious. a strong backup if disfrutar and cinc sentits are both full. → for one splurge: disfrutar if you can land it; cinc sentits the equally worthy, more bookable alternative. modern catalan backup ">
+<div class="card-top"><h4 class="card-name">Alkimia</h4></div>
+<div class="tags"><span class="tag">modern Catalan</span><span class="tag">backup</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Alkimia%2C%20Ronda%20de%20Sant%20Antoni%2C%2041%2C%20Barcelona" target="_blank" rel="noopener">📍 Ronda de Sant Antoni, 41</a><a class="chip" href="https://www.alkimia.cat/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Jordi Vilà&#x27;s modern Catalan, a notch more accessible than the above but still ambitious. A strong backup if Disfrutar and Cinc Sentits are both full. → For one splurge: Disfrutar if you can land it; Cinc Sentits the equally worthy, more bookable alternative.</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🍢</span><h3>Tapas &amp; pintxos bars</h3><span class="cat-count">4</span></summary>
+<div class="cards">
+<div class="card" data-hay="tapas 24 carrer de la diputació, 269 carles abellán&#x27;s beloved upscale-casual tapas bar. don&#x27;t miss the truffled sobrassada &#x27;bikini&#x27; sandwich. reliable, high-quality, fun — serious fine-dining pedigree at a playful counter. upscale-casual fun €20–30">
+<div class="card-top"><h4 class="card-name">Tapas 24</h4></div>
+<div class="tags"><span class="tag price">€20–30</span><span class="tag">upscale-casual</span><span class="tag">fun</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Tapas%2024%2C%20Carrer%20de%20la%20Diputaci%C3%B3%2C%20269%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de la Diputació, 269</a><a class="chip" href="https://tapas24.es/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Carles Abellán&#x27;s beloved upscale-casual tapas bar. Don&#x27;t miss the truffled sobrassada &quot;bikini&quot; sandwich. Reliable, high-quality, fun — serious fine-dining pedigree at a playful counter.</div>
+
+</div>
+<div class="card" data-hay="bar mut carrer de pau claris, 192 intimate, classic, with a seasonal market-driven menu; famed for grilled octopus and steak tartare, with an extensive wine list and vintage charm. one of the more grown-up, wine-forward tapas rooms in the city. grown-up wine-forward ">
+<div class="card-top"><h4 class="card-name">Bar Mut</h4></div>
+<div class="tags"><span class="tag">grown-up</span><span class="tag">wine-forward</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Bar%20Mut%2C%20Carrer%20de%20Pau%20Claris%2C%20192%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Pau Claris, 192</a><a class="chip" href="https://barmut.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Intimate, classic, with a seasonal market-driven menu; famed for grilled octopus and steak tartare, with an extensive wine list and vintage charm. One of the more grown-up, wine-forward tapas rooms in the city.</div>
+
+</div>
+<div class="card" data-hay="cerveseria catalana carrer de mallorca, 236 fun and tasty tapas; they don&#x27;t take reservations, so get there early or wait. the most famous &#x27;variety without trekking to the old city&#x27; tapas bar — touristy but genuinely good, and great for a family. go for an early (1pm) lunch to beat the line. famous family no-reso €20–30">
+<div class="card-top"><h4 class="card-name">Cerveseria Catalana</h4></div>
+<div class="tags"><span class="tag price">€20–30</span><span class="tag">famous</span><span class="tag">family</span><span class="tag book">no-reso</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Cerveseria%20Catalana%2C%20Carrer%20de%20Mallorca%2C%20236%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Mallorca, 236</a><a class="chip" href="https://www.laflautagroup.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Fun and tasty tapas; they don&#x27;t take reservations, so get there early or wait. The most famous &quot;variety without trekking to the old city&quot; tapas bar — touristy but genuinely good, and great for a family. Go for an early (1pm) lunch to beat the line.</div>
+
+</div>
+<div class="card" data-hay="paco meralgo carrer de muntaner, 171 excellent, slightly more local-leaning tapas with great product. a strong alternative to cerveseria catalana with similar energy. local-leaning great product ">
+<div class="card-top"><h4 class="card-name">Paco Meralgo</h4></div>
+<div class="tags"><span class="tag">local-leaning</span><span class="tag">great product</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Paco%20Meralgo%2C%20Carrer%20de%20Muntaner%2C%20171%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Muntaner, 171</a><a class="chip" href="https://pacomeralgo.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Excellent, slightly more local-leaning tapas with great product. A strong alternative to Cerveseria Catalana with similar energy.</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🍸</span><h3>Cocktail bars</h3><span class="cat-count">1</span></summary>
+<div class="cards">
+<div class="card" data-hay="sips carrer de muntaner, 108 closer to fine dining with booze than a regular bar — tasting menus, showtime service, drinks that look and taste like art. named world&#x27;s best bar in 2023 (currently #3), owned by ex-el bulli man marc álvarez and simone caporale, the only bartender to win the world&#x27;s 50 best bars five times. sleek and precise with an island-counter design and no traditional bar. reservation-or-queue. the intimate counter format makes it a couples&#x27; date night — skip with maya. #3 in world island counter book ahead ">
+<div class="card-top"><h4 class="card-name">Sips</h4></div>
+<div class="tags"><span class="tag">#3 in world</span><span class="tag">island counter</span><span class="tag book">book ahead</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Sips%2C%20Carrer%20de%20Muntaner%2C%20108%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Muntaner, 108</a><a class="chip" href="https://sips.barcelona/drinkery-house/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Closer to fine dining with booze than a regular bar — tasting menus, showtime service, drinks that look and taste like art. Named World&#x27;s Best Bar in 2023 (currently #3), owned by ex-El Bulli man Marc Álvarez and Simone Caporale, the only bartender to win the World&#x27;s 50 Best Bars five times. Sleek and precise with an island-counter design and no traditional bar. Reservation-or-queue. The intimate counter format makes it a couples&#x27; date night — skip with Maya.</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🍚</span><h3>Rice &amp; fideuà</h3><span class="cat-count">1</span></summary>
+<div class="cards">
+<div class="card" data-hay="cruix carrer d&#x27;entença, 57 the name evokes the catalan word for &#x27;crispy&#x27; — the socarrat, the prized almost-burnt crust of rice that sticks to the pan — and the restaurant specializes in authentic spanish rice dishes. a modern, well-regarded, well-priced rice specialist. a serious rice meal without going to barceloneta. modern well-priced ">
+<div class="card-top"><h4 class="card-name">Cruix</h4></div>
+<div class="tags"><span class="tag">modern</span><span class="tag">well-priced</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Cruix%2C%20Carrer%20d%27Enten%C3%A7a%2C%2057%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer d&#x27;Entença, 57</a><a class="chip" href="https://cruixrestaurant.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">The name evokes the Catalan word for &quot;crispy&quot; — the socarrat, the prized almost-burnt crust of rice that sticks to the pan — and the restaurant specializes in authentic Spanish rice dishes. A modern, well-regarded, well-priced rice specialist. A serious rice meal without going to Barceloneta.</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🥘</span><h3>Catalan home cooking</h3><span class="cat-count">2</span></summary>
+<div class="cards">
+<div class="card" data-hay="maleducat carrer de manso, 54 a standout. a modern spin on a &#x27;casa de menjars&#x27; (old-school catalan eating house that once served hearty home-style meals to the working class); the short menu is broken into finger food, bread, and small sharing dishes — the crunchy rice with palamós prawn tartare and the spicy beef-tendon stew are recommendations. the cool-but-rooted revival of catalan tradition, in the hip sant antoni pocket. standout modern catalan €50–70">
+<div class="card-top"><h4 class="card-name">Maleducat</h4></div>
+<div class="tags"><span class="tag price">€50–70</span><span class="tag">standout</span><span class="tag">modern Catalan</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Maleducat%2C%20Carrer%20de%20Manso%2C%2054%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Manso, 54</a><a class="chip" href="https://maleducat.es/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">A standout. A modern spin on a &quot;casa de menjars&quot; (old-school Catalan eating house that once served hearty home-style meals to the working class); the short menu is broken into finger food, bread, and small sharing dishes — the crunchy rice with Palamós prawn tartare and the spicy beef-tendon stew are recommendations. The cool-but-rooted revival of Catalan tradition, in the hip Sant Antoni pocket.</div>
+
+</div>
+<div class="card" data-hay="casa amalia ptge. del mercat, 14 slow food since 1950, with a menu spanning purely traditional recipes and modern reinterpretations of catalan cooking. a more old-guard, dependable choice. since 1950 dependable €30–70">
+<div class="card-top"><h4 class="card-name">Casa Amalia</h4></div>
+<div class="tags"><span class="tag price">€30–70</span><span class="tag">since 1950</span><span class="tag">dependable</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Casa%20Amalia%2C%20Ptge.%20del%20Mercat%2C%2014%2C%20Barcelona" target="_blank" rel="noopener">📍 Ptge. del Mercat, 14</a><a class="chip" href="https://casaamalia.com/mercatconcepcio/inicio" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Slow food since 1950, with a menu spanning purely traditional recipes and modern reinterpretations of Catalan cooking. A more old-guard, dependable choice.</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🏛️</span><h3>Markets</h3><span class="cat-count">1</span></summary>
+<div class="cards">
+<div class="card" data-hay="mercat de sant antoni carrer del comte d&#x27;urgell, 1 a beautifully restored 19th-century iron market hall, far more local than la boqueria, anchoring the whole sant antoni food scene. (there&#x27;s also mercat del ninot, another genuine neighborhood market in the esquerra.) restored local ">
+<div class="card-top"><h4 class="card-name">Mercat de Sant Antoni</h4></div>
+<div class="tags"><span class="tag">restored</span><span class="tag">local</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Mercat%20de%20Sant%20Antoni%2C%20Carrer%20del%20Comte%20d%27Urgell%2C%201%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer del Comte d&#x27;Urgell, 1</a><a class="chip" href="https://www.mercatdesantantoni.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">A beautifully restored 19th-century iron market hall, far more local than La Boqueria, anchoring the whole Sant Antoni food scene. (There&#x27;s also Mercat del Ninot, another genuine neighborhood market in the Esquerra.)</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🥐</span><h3>Forn / pastisseria</h3><span class="cat-count">1</span></summary>
+<div class="cards">
+<div class="card" data-hay="pastry — a note  the relevant name here is another hofmann presence and high-end pastry, but the pastry pilgrimage you&#x27;ve already got mapped in el born (hofmann, brunells, bubó) is stronger. in eixample, treat pastry as incidental to wherever you&#x27;re sightseeing — there are excellent modern bakery-cafés scattered through the district for a coffee-and-croissant break between gaudí stops. can pin specific ones to your walking route once the sightseeing days are set. incidental ">
+<div class="card-top"><h4 class="card-name">Pastry — a note</h4></div>
+<div class="tags"><span class="tag">incidental</span></div>
+
+<div class="desc">The relevant name here is another Hofmann presence and high-end pastry, but the pastry pilgrimage you&#x27;ve already got mapped in El Born (Hofmann, Brunells, Bubó) is stronger. In Eixample, treat pastry as incidental to wherever you&#x27;re sightseeing — there are excellent modern bakery-cafés scattered through the district for a coffee-and-croissant break between Gaudí stops. Can pin specific ones to your walking route once the sightseeing days are set.</div>
+
+</div>
+</div>
+</details>
+</section><section class="nbhd" id="nb-gracia">
+<div class="nbhd-head"><h2><span class="accent">🌿</span> Gràcia</h2><p class="nbhd-blurb">Bohemian, village-feel neighborhood above Eixample — narrow streets, leafy plazas, very local. Best paired with Park Güell. Its real strength is the vermouth ritual. (NB: the district, not Passeig de Gràcia.)</p></div>
+<div class="collapse-bar"><button class="collapse-toggle" data-state="expanded">▾ Collapse all</button></div>
+<details class="cat" open>
+<summary class="cat-h"><span class="pin">🍷</span><h3>Vermouth &amp; the aperitiu tradition</h3><span class="cat-count">2</span></summary>
+<div class="cards">
+<div class="card" data-hay="bodega quimet carrer de vic, 23 the standout — a genuine old-fashioned bodega: wine barrels, a wooden cooler, tapas, and stools, packed on weekend nights. platters of cheese and cured meats, small plates like russian salad, broad beans with ham and egg, confit tomatoes with anchovies. founded by mr. quimet in 1954, taken over by the montero brothers in 2010, original wine-cellar decoration preserved. the quintessential gràcia vermouth experience. (different from quimet i quimet in poble sec.) standout since 1954 tapas €10–20">
+<div class="card-top"><h4 class="card-name">Bodega Quimet</h4></div>
+<div class="tags"><span class="tag price">€10–20</span><span class="tag">standout</span><span class="tag">since 1954</span><span class="tag">tapas</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Bodega%20Quimet%2C%20Carrer%20de%20Vic%2C%2023%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Vic, 23</a><a class="chip" href="https://www.bodegaquimet.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">The standout — a genuine old-fashioned bodega: wine barrels, a wooden cooler, tapas, and stools, packed on weekend nights. Platters of cheese and cured meats, small plates like Russian salad, broad beans with ham and egg, confit tomatoes with anchovies. Founded by Mr. Quimet in 1954, taken over by the Montero brothers in 2010, original wine-cellar decoration preserved. The quintessential Gràcia vermouth experience. (Different from Quimet i Quimet in Poble Sec.)</div>
+
+</div>
+<div class="card" data-hay="ca l&#x27;pep (gràcia) carrer de verdi, 141 an old-school bodega filled with locals hanging out as if in their own living room — head here for a sweet vermouth or glass of cava, and don&#x27;t forget the snacks. the classic neighborhood vermouth hang. (nb: not the famous cal pep in el born.) local living-room €10–20">
+<div class="card-top"><h4 class="card-name">Ca l&#x27;Pep (Gràcia)</h4></div>
+<div class="tags"><span class="tag price">€10–20</span><span class="tag">local</span><span class="tag">living-room</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Ca%20l%27Pep%20%28Gr%C3%A0cia%29%2C%20Carrer%20de%20Verdi%2C%20141%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Verdi, 141</a></div>
+<div class="desc">An old-school bodega filled with locals hanging out as if in their own living room — head here for a sweet vermouth or glass of cava, and don&#x27;t forget the snacks. The classic neighborhood vermouth hang. (NB: not the famous Cal Pep in El Born.)</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🍢</span><h3>Tapas &amp; pintxos bars</h3><span class="cat-count">3</span></summary>
+<div class="cards">
+<div class="card" data-hay="la pepita carrer de còrsega, 343 a gràcia favorite for creative, modern tapas. don&#x27;t miss their vic — &#x27;very important croquette,&#x27; made with spanish ham — plus the anchovies and eggplant fritters. there&#x27;s a sister spot, mini pepita, next door with outdoor tables. lively and fun, a notch more inventive than the old bodegas. creative beloved ">
+<div class="card-top"><h4 class="card-name">La Pepita</h4></div>
+<div class="tags"><span class="tag">creative</span><span class="tag">beloved</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=La%20Pepita%2C%20Carrer%20de%20C%C3%B2rsega%2C%20343%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Còrsega, 343</a><a class="chip" href="https://lapepitabcn.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">A Gràcia favorite for creative, modern tapas. Don&#x27;t miss their VIC — &quot;very important croquette,&quot; made with Spanish ham — plus the anchovies and eggplant fritters. There&#x27;s a sister spot, Mini Pepita, next door with outdoor tables. Lively and fun, a notch more inventive than the old bodegas.</div>
+
+</div>
+<div class="card" data-hay="gasterea carrer de verdi, 39 the pintxos pick. a casual bar with great basque-style self-service pintxos on tree-lined verdi street — try as many as you like and wash them down with fizzy txakoli wine. good for a graze-and-point session. pintxos self-service casual €10–20">
+<div class="card-top"><h4 class="card-name">Gasterea</h4></div>
+<div class="tags"><span class="tag price">€10–20</span><span class="tag">pintxos</span><span class="tag">self-service</span><span class="tag">casual</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Gasterea%2C%20Carrer%20de%20Verdi%2C%2039%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Verdi, 39</a></div>
+<div class="desc">The pintxos pick. A casual bar with great Basque-style self-service pintxos on tree-lined Verdi Street — try as many as you like and wash them down with fizzy txakoli wine. Good for a graze-and-point session.</div>
+
+</div>
+<div class="card" data-hay="bodega quimet carrer de vic, 23 cosy traditional tapas &amp; wine bar frequented by locals serving catalonian wines &amp; house vermouth. its tapas are as much the draw as the vermouth. tapas wine bar €10–20">
+<div class="card-top"><h4 class="card-name">Bodega Quimet</h4></div>
+<div class="tags"><span class="tag price">€10–20</span><span class="tag">tapas</span><span class="tag">wine bar</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Bodega%20Quimet%2C%20Carrer%20de%20Vic%2C%2023%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Vic, 23</a><a class="chip" href="https://www.bodegaquimet.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Cosy traditional tapas &amp; wine bar frequented by locals serving Catalonian wines &amp; house vermouth. Its tapas are as much the draw as the vermouth.</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🥘</span><h3>Catalan home cooking</h3><span class="cat-count">1</span></summary>
+<div class="cards">
+<div class="card" data-hay="la panxa del bisbe carrer de torrent de les flors, 158 inventive catalan cuisine, well off the beaten path, a top-notch near-fine-dining spot that&#x27;s a favorite among locals — make a reservation. the &#x27;proper, slightly elevated dinner in gràcia&#x27; pick, and a good one. (fonda pepa and its smaller sibling oído are modern-catalan backups if panxa is booked.) near-fine-dining local favorite book ahead €30–40">
+<div class="card-top"><h4 class="card-name">La Panxa del Bisbe</h4></div>
+<div class="tags"><span class="tag price">€30–40</span><span class="tag">near-fine-dining</span><span class="tag">local favorite</span><span class="tag book">book ahead</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=La%20Panxa%20del%20Bisbe%2C%20Carrer%20de%20Torrent%20de%20les%20Flors%2C%20158%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Torrent de les Flors, 158</a><a class="chip" href="https://www.instagram.com/lapanxadelbisbe" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Inventive Catalan cuisine, well off the beaten path, a top-notch near-fine-dining spot that&#x27;s a favorite among locals — make a reservation. The &quot;proper, slightly elevated dinner in Gràcia&quot; pick, and a good one. (Fonda Pepa and its smaller sibling Oído are modern-Catalan backups if Panxa is booked.)</div>
+
+</div>
+</div>
+</details>
+</section><section class="nbhd" id="nb-raval">
+<div class="nbhd-head"><h2><span class="accent">🎨</span> El Raval</h2><p class="nbhd-blurb">Gritty, multicultural, fast-gentrifying — across La Rambla from the Gothic. A remarkable cluster of El Bulli-alumni kitchens. A fantastic lunch / early-dinner neighborhood; after dark stick to the livelier streets (Liceu, Rambla del Raval, MACBA).</p></div>
+<div class="collapse-bar"><button class="collapse-toggle" data-state="expanded">▾ Collapse all</button></div>
+<details class="cat" open>
+<summary class="cat-h"><span class="pin">✨</span><h3>Modernist / culinary-concept</h3><span class="cat-count">3</span></summary>
+<div class="cards">
+<div class="card" data-hay="dos pebrots carrer del doctor dou, 19 your friend&#x27;s pick, and the neighborhood&#x27;s standout for your interests. albert raurich&#x27;s (el bulli head chef) culinary-history project — looks to the civilizations of the mediterranean for inspiration: garums, plays on texture and temperature, but also brilliant meat cooking. sit at the counter and watch the calm kitchen through the tasting menu or à la carte. the food-as-history angle makes it more interesting than a standard splurge. confirm the table-time limit when booking. culinary history ex-el bulli book ahead time limit $$$$">
+<div class="card-top"><h4 class="card-name">Dos Pebrots</h4></div>
+<div class="tags"><span class="tag price">$$$$</span><span class="tag">culinary history</span><span class="tag">ex-El Bulli</span><span class="tag book">book ahead</span><span class="tag book">time limit</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Dos%20Pebrots%2C%20Carrer%20del%20Doctor%20Dou%2C%2019%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer del Doctor Dou, 19</a><a class="chip" href="http://www.dospebrots.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Your friend&#x27;s pick, and the neighborhood&#x27;s standout for your interests. Albert Raurich&#x27;s (El Bulli head chef) culinary-history project — looks to the civilizations of the Mediterranean for inspiration: garums, plays on texture and temperature, but also brilliant meat cooking. Sit at the counter and watch the calm kitchen through the tasting menu or à la carte. The food-as-history angle makes it more interesting than a standard splurge. Confirm the table-time limit when booking.</div>
+
+</div>
+<div class="card" data-hay="dos palillos carrer d&#x27;elisabets, 9 raurich&#x27;s other place — asian-spanish tasting menus, chic and modern, in the ferran adrià tradition. el bulli technique applied to japanese/chinese small plates; given your kaiseki interest this might appeal even more than dos pebrots. one michelin star. book ahead. asian-spanish 1 michelin book ahead €100+">
+<div class="card-top"><h4 class="card-name">Dos Palillos</h4></div>
+<div class="tags"><span class="tag price">€100+</span><span class="tag">Asian-Spanish</span><span class="tag">1 Michelin</span><span class="tag book">book ahead</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Dos%20Palillos%2C%20Carrer%20d%27Elisabets%2C%209%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer d&#x27;Elisabets, 9</a><a class="chip" href="http://www.dospalillos.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Raurich&#x27;s other place — Asian-Spanish tasting menus, chic and modern, in the Ferran Adrià tradition. El Bulli technique applied to Japanese/Chinese small plates; given your kaiseki interest this might appeal even more than Dos Pebrots. One Michelin star. Book ahead.</div>
+
+</div>
+<div class="card" data-hay="suculent rambla del raval, 45 toni romero (also el bulli) — a strong contender for barcelona&#x27;s best bistro. catalan tapas and dishes rooted in rustic classics, executed to high modern standards; the name plays on &#x27;sucar lent,&#x27; to dip slowly, and great bread soaks up the sauces. known for offal elevated to exquisite creations — a haven for meat lovers. la taberna counter for tapas + a sit-down restaurant. the crispy suckling pig is a signature. &#x27;fine dining without the nitrogen.&#x27; → three el bulli-trained chefs within walking distance, each distinct. best bistro rustic book ahead $$$">
+<div class="card-top"><h4 class="card-name">Suculent</h4></div>
+<div class="tags"><span class="tag price">$$$</span><span class="tag">best bistro</span><span class="tag">rustic</span><span class="tag book">book ahead</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Suculent%2C%20Rambla%20del%20Raval%2C%2045%2C%20Barcelona" target="_blank" rel="noopener">📍 Rambla del Raval, 45</a><a class="chip" href="http://www.suculent.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">Toni Romero (also El Bulli) — a strong contender for Barcelona&#x27;s best bistro. Catalan tapas and dishes rooted in rustic classics, executed to high modern standards; the name plays on &quot;sucar lent,&quot; to dip slowly, and great bread soaks up the sauces. Known for offal elevated to exquisite creations — a haven for meat lovers. La Taberna counter for tapas + a sit-down restaurant. The crispy suckling pig is a signature. &quot;Fine dining without the nitrogen.&quot; → Three El Bulli-trained chefs within walking distance, each distinct.</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🍢</span><h3>Tapas &amp; pintxos bars</h3><span class="cat-count">2</span></summary>
+<div class="cards">
+<div class="card" data-hay="bar cañete carrer de la unió, 17 a genuine standout just around the corner from the liceu — a long bar overlooking the burners leading to a 20-seat communal tasting table. specialists in ibérico products and obscure cuts, but the real highlight is market-fresh seafood from oysters to grilled baby scallops. service genuinely goes the extra mile. polished, lively, waiters dressed sharp — book ahead. sit at the bar to watch the kitchen. sit-down sibling cañete mantel is next door. standout seafood ibérico book ahead €30–80">
+<div class="card-top"><h4 class="card-name">Bar Cañete</h4></div>
+<div class="tags"><span class="tag price">€30–80</span><span class="tag">standout</span><span class="tag">seafood</span><span class="tag">Ibérico</span><span class="tag book">book ahead</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Bar%20Ca%C3%B1ete%2C%20Carrer%20de%20la%20Uni%C3%B3%2C%2017%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de la Unió, 17</a><a class="chip" href="http://www.barcanete.com/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">A genuine standout just around the corner from the Liceu — a long bar overlooking the burners leading to a 20-seat communal tasting table. Specialists in Ibérico products and obscure cuts, but the real highlight is market-fresh seafood from oysters to grilled baby scallops. Service genuinely goes the extra mile. Polished, lively, waiters dressed sharp — book ahead. Sit at the bar to watch the kitchen. Sit-down sibling Cañete Mantel is next door.</div>
+
+</div>
+<div class="card" data-hay="casa almirall carrer de joaquín costa, 20 a lower-key gem. one of the longest-standing establishments on joaquín costa, a modernista room that looks like an ordinary bar but cooks up some of the best tapas in town during the day — no menu, just a printed daily receipt on each table. one of the oldest bars in barcelona. historic daytime modernista €10–20">
+<div class="card-top"><h4 class="card-name">Casa Almirall</h4></div>
+<div class="tags"><span class="tag price">€10–20</span><span class="tag">historic</span><span class="tag">daytime</span><span class="tag">modernista</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Casa%20Almirall%2C%20Carrer%20de%20Joaqu%C3%ADn%20Costa%2C%2020%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Joaquín Costa, 20</a></div>
+<div class="desc">A lower-key gem. One of the longest-standing establishments on Joaquín Costa, a modernista room that looks like an ordinary bar but cooks up some of the best tapas in town during the day — no menu, just a printed daily receipt on each table. One of the oldest bars in Barcelona.</div>
+
+</div>
+</div>
+</details><details class="cat" open>
+<summary class="cat-h"><span class="pin">🥘</span><h3>Catalan home cooking</h3><span class="cat-count">2</span></summary>
+<div class="cards">
+<div class="card" data-hay="elisabets carrer de les ramelleres, 3 your friend&#x27;s &#x27;relic&#x27; — an attractive, perennially popular bistro just west of la rambla, where the inexpensive lunch menu draws in-the-know locals, with traditional marble tabletops and a country kitchen table. exactly the old-school, great-value neighborhood lunch institution your friend described. the midday menú del día is the move. relic value menú del día €10–20">
+<div class="card-top"><h4 class="card-name">Elisabets</h4></div>
+<div class="tags"><span class="tag price">€10–20</span><span class="tag">relic</span><span class="tag">value</span><span class="tag">menú del día</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Elisabets%2C%20Carrer%20de%20les%20Ramelleres%2C%203%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de les Ramelleres, 3</a></div>
+<div class="desc">Your friend&#x27;s &quot;relic&quot; — an attractive, perennially popular bistro just west of La Rambla, where the inexpensive lunch menu draws in-the-know locals, with traditional marble tabletops and a country kitchen table. Exactly the old-school, great-value neighborhood lunch institution your friend described. The midday menú del día is the move.</div>
+
+</div>
+<div class="card" data-hay="bar leopoldo carrer de sant rafael, 24 (formerly casa leopoldo.) a reboot of a true raval institution serving classic spanish fare for generations — well-prepared rice, grilled meats, great tapas, and catalan classics, in an inviting post-facelift room. a more traditional sit-down catalan meal. institution traditional €30–50">
+<div class="card-top"><h4 class="card-name">Bar Leopoldo</h4></div>
+<div class="tags"><span class="tag price">€30–50</span><span class="tag">institution</span><span class="tag">traditional</span></div>
+<div class="chips"><a class="chip" href="https://www.google.com/maps/search/?api=1&query=Bar%20Leopoldo%2C%20Carrer%20de%20Sant%20Rafael%2C%2024%2C%20Barcelona" target="_blank" rel="noopener">📍 Carrer de Sant Rafael, 24</a><a class="chip" href="http://casaleopoldo.barcelona/" target="_blank" rel="noopener">🌐 Website</a></div>
+<div class="desc">(Formerly Casa Leopoldo.) A reboot of a true Raval institution serving classic Spanish fare for generations — well-prepared rice, grilled meats, great tapas, and Catalan classics, in an inviting post-facelift room. A more traditional sit-down Catalan meal.</div>
+
+</div>
+</div>
+</details>
+</section>
+</main>
+
+<footer>Built from your Euro Summer 2026 doc · tap a category to fold it</footer>
+
+<script>
+(function(){
+  // Search (progressive enhancement). Tabs are pure CSS (radio + :checked).
+  var search=document.getElementById('search');
+  var clearBtn=document.getElementById('clearBtn');
+  var info=document.getElementById('resultsInfo');
+  var noRes=document.getElementById('noResults');
+  var cards=Array.prototype.slice.call(document.querySelectorAll('.card'));
+  var cats=Array.prototype.slice.call(document.querySelectorAll('.cat'));
+  var nbhds=Array.prototype.slice.call(document.querySelectorAll('.nbhd'));
+
+  // tag each card with its neighborhood + category name for result labels
+  cards.forEach(function(c){
+    var nb=c.closest('.nbhd');
+    var cat=c.closest('.cat');
+    var nbName=nb.querySelector('.nbhd-head h2') ? nb.querySelector('.nbhd-head h2').textContent.trim() : '';
+    var catName=cat.querySelector('.cat-h h3') ? cat.querySelector('.cat-h h3').textContent.trim() : '';
+    c.setAttribute('data-label', nbName+' · '+catName);
+  });
+
+  function run(q){
+    q=q.trim().toLowerCase();
+    if(!q){
+      document.body.classList.remove('searching');
+      clearBtn.classList.remove('show');
+      cards.forEach(function(c){c.classList.remove('nomatch');
+        var ex=c.querySelector('.result-nbhd'); if(ex) ex.remove();});
+      cats.forEach(function(c){c.removeAttribute('data-empty'); if(!c.open) c.open=true;});
+      noRes.style.display='none';
+      return;
+    }
+    document.body.classList.add('searching');
+    clearBtn.classList.add('show');
+    var terms=q.split(/\s+/);
+    var total=0;
+    cards.forEach(function(c){
+      var hay=c.getAttribute('data-hay')||'';
+      var lbl=(c.getAttribute('data-label')||'').toLowerCase();
+      var combined=hay+' '+lbl;
+      var hit=terms.every(function(t){return combined.indexOf(t)>-1;});
+      c.classList.toggle('nomatch', !hit);
+      // add neighborhood label to visible cards
+      var existing=c.querySelector('.result-nbhd');
+      if(hit){
+        if(!existing){
+          var d=document.createElement('div');
+          d.className='result-nbhd';
+          d.textContent=c.getAttribute('data-label');
+          c.insertBefore(d,c.firstChild);
+        }
+        total++;
+      } else if(existing){existing.remove();}
+    });
+    cats.forEach(function(cat){
+      cat.open=true;
+      var any=cat.querySelector('.card:not(.nomatch)');
+      cat.setAttribute('data-empty', any?'0':'1');
+    });
+    info.textContent=total+(total===1?' match':' matches');
+    noRes.style.display= total? 'none':'block';
+  }
+
+  search.addEventListener('input',function(e){run(e.target.value);});
+  clearBtn.addEventListener('click',function(){search.value='';run('');search.focus();});
+
+  // Collapse all / Expand all (per neighborhood)
+  document.querySelectorAll('.collapse-toggle').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var panel=btn.closest('.nbhd');
+      var cats=panel.querySelectorAll('.cat');
+      var collapsing=btn.getAttribute('data-state')==='expanded';
+      cats.forEach(function(c){ c.open=!collapsing; });
+      btn.setAttribute('data-state', collapsing?'collapsed':'expanded');
+      btn.textContent = collapsing ? '▸ Expand all' : '▾ Collapse all';
+    });
+  });
+
+  // when a tab is tapped, scroll to top
+  document.querySelectorAll('label.tab').forEach(function(l){
+    l.addEventListener('click',function(){window.scrollTo({top:0});});
+  });
+})();
+</script>
+</body>
+</html>
